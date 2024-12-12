@@ -21,24 +21,24 @@ module URP_PCIE_TX_DATA_LINK_LAYER
 
     // Internal Signals
     // Retry buffer Signals
-    logic         wren_i;           // Retry bufferÀÇ ¾²±â ½ÅÈ£ 
-    logic [267:0] wdata_i;          // Retry bufferÀÇ ¾²´Â µ¥ÀÌÅÍ
-    logic [267:0] rdata_o;          // Retry buffer¿¡¼­ ÀĞ¾î¿À´Â data
-    logic [267:0] prev_rdata;       // Àü rdata_o (NAK °úÁ¤ Áß ÇÑ µ¥ÀÌÅÍ¿¡ ÇÑ¹øÀÇ valid ½ÅÈ£¸¦ ÁÖ±â À§ÇÔ)
-    logic         first_nak;        // Ã¹ NAKÀ» °¨ÁöÇÏ´Â ½ÅÈ£, 0ÀÌ¸é Ã³À½
+    logic         wren_i;           // Retry bufferì˜ ì“°ê¸° ì‹ í˜¸ 
+    logic [267:0] wdata_i;          // Retry bufferì˜ ì“°ëŠ” ë°ì´í„°
+    logic [267:0] rdata_o;          // Retry bufferì—ì„œ ì½ì–´ì˜¤ëŠ” data
+    logic [267:0] prev_rdata;       // ì „ rdata_o (NAK ê³¼ì • ì¤‘ í•œ ë°ì´í„°ì— í•œë²ˆì˜ valid ì‹ í˜¸ë¥¼ ì£¼ê¸° ìœ„í•¨)
+    logic         first_nak;        // ì²« NAKì„ ê°ì§€í•˜ëŠ” ì‹ í˜¸, 0ì´ë©´ ì²˜ìŒ
     // LCRC Signals
-    logic         TX_crc_valid_o;   // TX_crcÀÇ valid ½ÅÈ£
-    logic [223:0] TX_crc_data_o;    // tlp_data_i ±×´ë·Î 
-    logic [31:0]  TX_crc_checksum;  // TX_crc_encÀÇ Data(CRC)    
+    logic         TX_crc_valid_o;   // TX_crcì˜ valid ì‹ í˜¸
+    logic [223:0] TX_crc_data_o;    // tlp_data_i ê·¸ëŒ€ë¡œ 
+    logic [31:0]  TX_crc_checksum;  // TX_crc_encì˜ Data(CRC)    
     
     // DLLP Signals
-    logic [11:0]  seq_num;          // TX_DLL¿¡¼­ »ı¼ºÇÏ´Â Sequence Number
-    logic         Ack, Nak;         // TX_DLL¿¡¼­ ÆÇ´ÜÇÏ´Â Ack, Nak
-    logic         timing;           // NAK rdata_o »ç¿ë Timing ¸ÂÃß±â ¿ë    
+    logic [11:0]  seq_num;          // TX_DLLì—ì„œ ìƒì„±í•˜ëŠ” Sequence Number
+    logic         Ack, Nak;         // TX_DLLì—ì„œ íŒë‹¨í•˜ëŠ” Ack, Nak
+    logic         timing;           // NAK rdata_o ì‚¬ìš© Timing ë§ì¶”ê¸° ìš©    
 
     // Reset
     always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin      //ÃÊ±âÈ­
+        if (!rst_n) begin      //ì´ˆê¸°í™”
             tlp_data_ready_o   <= 1'b0;  
             tlp_data_o         <= 268'b0;
             tlp_data_valid_o   <= 1'b0;
@@ -61,17 +61,17 @@ module URP_PCIE_TX_DATA_LINK_LAYER
                 // DLLP [31:24] = 0001 0000 NAK             
                 Nak <= (dllp_i[31:24] == 8'b00010000); 
             end
-            else begin            //ÃÊ±âÈ­
+            else begin            //ì´ˆê¸°í™”
                 Ack                <= 1'b0;      
                 Nak                <= 1'b0;      
             end   
             
-            // Case 1: NAK ¼ö½Å
+            // Case 1: NAK ìˆ˜ì‹ 
             if (Nak) begin
-            //Ã³À½ NAKÀº ºñ±³¾ÈÇÏ°í rdata_o°¡ 1ÀÌ¸é ÄÑÁü, ¾È³ÖÀ»½Ã valid ½ÅÈ£ Error  
-               if(!first_nak) begin    // valid º¸³»´Â ½ÅÈ£
+            //ì²˜ìŒ NAKì€ ë¹„êµì•ˆí•˜ê³  rdata_oê°€ 1ì´ë©´ ì¼œì§, ì•ˆë„£ì„ì‹œ valid ì‹ í˜¸ Error  
+               if(!first_nak) begin    // valid ë³´ë‚´ëŠ” ì‹ í˜¸
                     wren_i             <= 1'b0;          
-                    tlp_data_ready_o   <= 1'b0;     // TLP °ªÀ» ¹ŞÁö ¾ÊÀ½     
+                    tlp_data_ready_o   <= 1'b0;     // TLP ê°’ì„ ë°›ì§€ ì•ŠìŒ     
                     tlp_data_o         <= rdata_o;
                     if(rdata_o) begin       
                     tlp_data_valid_o   <= 1'b1;      
@@ -81,19 +81,19 @@ module URP_PCIE_TX_DATA_LINK_LAYER
                     first_nak          <= 1'b1;
                     timing             <= 0;
                end
-               else if(first_nak) begin // valid ¾Èº¸³»´Â ½ÅÈ£
+               else if(first_nak) begin // valid ì•ˆë³´ë‚´ëŠ” ì‹ í˜¸
                     tlp_data_valid_o   <= 1'b0;
                     if (prev_rdata == rdata_o) begin
                         wren_i             <= 1'b0;          
-                        tlp_data_ready_o   <= 1'b0;  // TLP °ªÀ» ¹ŞÁö ¾ÊÀ½        
+                        tlp_data_ready_o   <= 1'b0;  // TLP ê°’ì„ ë°›ì§€ ì•ŠìŒ        
                         tlp_data_o         <= rdata_o;       
                         tlp_data_valid_o   <= 1'b0;         
                         dllp_ready_o       <= 1'b1;
                         timing             <= 0;
                     end
-                    else begin           // valid º¸³»´Â ½ÅÈ£
+                    else begin           // valid ë³´ë‚´ëŠ” ì‹ í˜¸
                         wren_i             <= 1'b0;          
-                        tlp_data_ready_o   <= 1'b0;   // TLP °ªÀ» ¹ŞÁö ¾ÊÀ½        
+                        tlp_data_ready_o   <= 1'b0;   // TLP ê°’ì„ ë°›ì§€ ì•ŠìŒ        
                         tlp_data_o         <= rdata_o;
                         if(timing == 1'b1) begin       
                         tlp_data_valid_o   <= 1'b1;      
@@ -105,9 +105,9 @@ module URP_PCIE_TX_DATA_LINK_LAYER
                     end
             end
             if (TX_crc_valid_o) begin
-                timing             <= 0;  //Timing ÃÊ±âÈ­, TimingÀ¸·Î, NAK½Ã rdata_o ¼Óµµ Á¶Àı
-             // Case 2: ACK + ÀÏ¹İ Tlp Àü¼Û (Latency Timer·Î ÀÎÇØ ACK ¸ø¹ŞÀ» ¼öµµ ÀÖ±â¿¡)
-                if (!Nak && (Ack || tlp_data_ready_i)  &&  tlp_data_i != 1) begin
+                timing             <= 0;  //Timing ì´ˆê¸°í™”, Timingìœ¼ë¡œ, NAKì‹œ rdata_o ì†ë„ ì¡°ì ˆ
+             // Case 2: ACK + ì¼ë°˜ Tlp ì „ì†¡ (Latency Timerë¡œ ì¸í•´ ACK ëª»ë°›ì„ ìˆ˜ë„ ìˆê¸°ì—)
+                if (!Nak && (Ack || tlp_data_ready_i)) begin // Nakì¼ì‹œ ready ì‹ í˜¸ êº¼ì£¼ê¸°ì—
                      // Retry buffer
                     wren_i             <= 1'b1;          
                     wdata_i            <= {seq_num, TX_crc_data_o, TX_crc_checksum};
@@ -120,13 +120,13 @@ module URP_PCIE_TX_DATA_LINK_LAYER
                  end
             end
             else begin
-                if (!Nak) begin    //MAK½ÅÈ£ ³¡³ª¸é ´Ù ÃÊ±âÈ­
+                if (!Nak) begin    //MAKì‹ í˜¸ ëë‚˜ë©´ ë‹¤ ì´ˆê¸°í™”
                 tlp_data_o         <= 268'b0;        // Garbage 
                 tlp_data_valid_o   <= 1'b0;          // valid 
                 dllp_ready_o       <= 1'b1;          // DLLP 
                 wren_i             <= 1'b0;          // Retry buffer
                 first_nak          <= 1'b0;
-                tlp_data_ready_o   <= 1'b1;          // °ªÀ» ´Ù½Ã ¹ŞÀ½
+                tlp_data_ready_o   <= 1'b1;          // ê°’ì„ ë‹¤ì‹œ ë°›ìŒ
                 end
             end
         end
