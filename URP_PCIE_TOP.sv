@@ -19,7 +19,7 @@ module URP_PCIE_TOP
     output  logic   [2:0]           header_fmt_o,
     output  logic   [4:0]           header_type_o,
     output  logic   [2:0]           header_tc_o,
-    input   logic   [9:0]		    header_length_o,
+    output  logic   [9:0]		    header_length_o,
     output  logic   [15:0]          header_requestID_o,
     output  logic   [15:0]          header_completID_o
 );
